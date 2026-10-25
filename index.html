@@ -18,19 +18,18 @@ header p{margin:8px 0 0;color:var(--muted)}
 .grid{max-width:760px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
 .card{aspect-ratio:3/4;border:0;border-radius:16px;cursor:pointer;color:#fff;font:inherit;
 background:linear-gradient(145deg,var(--card),var(--card2));box-shadow:0 6px 16px rgba(0,0,0,.2);
-display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:transform .2s,opacity .6s}
+display:flex;align-items:center;justify-content:center;transition:transform .2s,opacity .6s}
 .card:hover{transform:translateY(-4px) rotate(-1deg)}
-.card .heart{font-size:2.2rem}
-.card .m{font-size:1.15rem;letter-spacing:.05em}
+.card .heart{font-size:3rem}
 .card.vanish{opacity:0;transform:scale(.6) rotate(8deg);pointer-events:none}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
 .overlay.show{display:flex}
 .open{background:var(--paper);border-radius:18px;max-width:380px;width:100%;padding:28px 22px;animation:pop .45s ease;box-shadow:0 10px 40px rgba(0,0,0,.4)}
 @keyframes pop{from{transform:scale(.3) rotateY(90deg);opacity:0}to{transform:none;opacity:1}}
-.open .mo{color:var(--card);letter-spacing:.15em;text-transform:uppercase;font-size:.85rem}
-.open h2{margin:8px 0 10px;font-size:1.6rem}
+.open h2{margin:0 0 10px;font-size:1.6rem}
 .open p{margin:0 0 20px;line-height:1.5}
-.open button{background:var(--card);color:#fff;border:0;border-radius:999px;padding:10px 26px;font:inherit;cursor:pointer}
+.btn{display:inline-block;background:var(--card);color:#fff;border:0;border-radius:999px;padding:10px 26px;font:inherit;cursor:pointer;text-decoration:none}
+.song{margin:0 0 16px}
 .done{display:none;margin:40px 16px;font-size:1.3rem}
 footer{padding:24px;font-size:.8rem;color:var(--muted)}
 footer button{background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit}
@@ -46,27 +45,27 @@ footer button{background:none;border:0;color:inherit;text-decoration:underline;c
 <footer><button id="reset">reset cards</button></footer>
 
 <div class="overlay" id="overlay"><div class="open">
-<div class="mo" id="oMonth"></div>
 <h2 id="oTitle"></h2>
 <p id="oText"></p>
-<button id="oClose">Close</button>
+<div class="song" id="oSongWrap"><a class="btn" id="oSong" href="#" target="_blank" rel="noopener noreferrer">🎵 Song of the Month</a></div>
+<button class="btn" id="oClose">Close</button>
 </div></div>
 
 <script>
-// ✏️ EDIT YOUR PLANS HERE
+// ✏️ EDIT YOUR PLANS AND YOUTUBE LINKS HERE
 const PLANS=[
-{m:"Month 1",t:"Candlelight Dinner",d:"A cozy home-cooked dinner with our favorite songs playing."},
-{m:"Month 2",t:"Movie Night",d:"Blankets, popcorn and a movie we’ve both been wanting to watch."},
-{m:"Month 3",t:"Picnic Date",d:"A sunny picnic at our favorite park."},
-{m:"Month 4",t:"Memory Lane",d:"Look through our old photos and relive our best moments."},
-{m:"Month 5",t:"Weekend Getaway",d:"A short trip somewhere new, just the two of us."},
-{m:"Month 6",t:"Cook Together",d:"Pick a new recipe and make it together."},
-{m:"Month 7",t:"Stargazing",d:"A night under the stars with hot chocolate."},
-{m:"Month 8",t:"Surprise Gift Day",d:"We each pick a small gift for the other."},
-{m:"Month 9",t:"Dance Night",d:"Dance together in the living room, no rules."},
-{m:"Month 10",t:"Adventure Day",d:"Try something we’ve never done before."},
-{m:"Month 11",t:"Love Letters",d:"Write each other a heartfelt letter and read it aloud."},
-{m:"Month 12",t:"Anniversary Celebration",d:"A special day to celebrate another year together."}
+{t:"Breakfast in Bed",d:"Wake up to a surprise breakfast, made just for you. No phones, no rushing.",l:"PASTE_LINK_1"},
+{t:"Candlelight Dinner at Home",d:"Soft music, candles and your favorite meal. Just the two of us, with nowhere else to be.",l:"PASTE_LINK_2"},
+{t:"Love Notes Hunt",d:"I hide little love notes around the house for you to find, and the last one leads to a surprise.",l:"PASTE_LINK_3"},
+{t:"Sunset Picnic for Three",d:"A blanket, fruit, sweets and a quiet spot to watch the sun go down, with the three of us together.",l:"PASTE_LINK_4"},
+{t:"Day Trip Adventure",d:"We pack snacks and go somewhere new for the day, a beach, a hill or a small town.",l:"PASTE_LINK_5"},
+{t:"Stargazing and Wishes",d:"We lie under the stars with warm blankets and hot chocolate, and tell each other our biggest dreams.",l:"PASTE_LINK_6"},
+{t:"Surprise Mystery Day",d:"One of us plans the entire day in secret. The other only gets clues, with no questions allowed.",l:"PASTE_LINK_7"},
+{t:"Cook-Off Challenge",d:"We each make a dish for the other, then rate each other’s cooking. The winner picks the next date.",l:"PASTE_LINK_8"},
+{t:"Slow Dance in the Living Room",d:"We put on our song, dim the lights and dance slowly, holding each other close.",l:"PASTE_LINK_9"},
+{t:"Spa Night at Home",d:"Face masks, massages, soft music and candles. A full night of relaxing together.",l:"PASTE_LINK_10"},
+{t:"Letters to Our Future",d:"We each write a letter about our hopes for the years ahead, seal it, and promise to open it together on a future anniversary.",l:"PASTE_LINK_11"},
+{t:"Your Wish Day",d:"Any day we both feel like it, you choose the plan and I follow along. No questions asked, and no limits.",l:"PASTE_LINK_12"}
 ];
 const KEY="anniv-opened";
 let opened=[];
@@ -80,8 +79,8 @@ function render(){
   PLANS.forEach((p,i)=>{
     if(opened.includes(i))return;
     const b=document.createElement("button");
-    b.className="card";b.dataset.i=i;
-    b.innerHTML='<span class="heart">💌</span><span class="m">'+p.m+'</span>';
+    b.className="card";b.setAttribute("aria-label","Surprise card");
+    b.innerHTML='<span class="heart">💌</span>';
     b.onclick=()=>openCard(i,b);
     grid.appendChild(b);
   });
@@ -90,9 +89,11 @@ function render(){
 function openCard(i,el){
   current={i,el};
   const p=PLANS[i];
-  document.getElementById("oMonth").textContent=p.m;
   document.getElementById("oTitle").textContent=p.t;
   document.getElementById("oText").textContent=p.d;
+  const wrap=document.getElementById("oSongWrap"),a=document.getElementById("oSong");
+  if(p.l&&p.l.indexOf("http")===0){a.href=p.l;wrap.style.display="block"}
+  else{wrap.style.display="none"}
   ov.classList.add("show");
 }
 function closeCard(){
