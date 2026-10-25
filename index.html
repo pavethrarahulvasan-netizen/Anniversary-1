@@ -47,32 +47,65 @@ footer button{background:none;border:0;color:inherit;text-decoration:underline;c
 <div class="overlay" id="overlay"><div class="open">
 <h2 id="oTitle"></h2>
 <p id="oText"></p>
-<div class="song" id="oSongWrap"><a class="btn" id="oSong" href="#" target="_blank" rel="noopener noreferrer">🎵 Song of the Month</a></div>
+<div class="song"><a class="btn" id="oSong" href="#" target="_blank" rel="noopener noreferrer">🎵 Song of the Month</a></div>
 <button class="btn" id="oClose">Close</button>
 </div></div>
 
 <script>
-// ✏️ EDIT YOUR PLANS AND YOUTUBE LINKS HERE
+// ✏️ EDIT YOUR PLANS HERE
 const PLANS=[
-{t:"Breakfast in Bed",d:"Wake up to a surprise breakfast, made just for you. No phones, no rushing.",l:"https://youtu.be/Y7ZHkpRcshQ?si=yKa1GyB3Q62AjYUF "},
-{t:"Candlelight Dinner at Home",d:"Soft music, candles and your favorite meal. Just the two of us, with nowhere else to be.",l:"PASTE_LINK_2"},
-{t:"Love Notes Hunt",d:"I hide little love notes around the house for you to find, and the last one leads to a surprise.",l:"PASTE_LINK_3"},
-{t:"Sunset Picnic for Three",d:"A blanket, fruit, sweets and a quiet spot to watch the sun go down, with the three of us together.",l:"PASTE_LINK_4"},
-{t:"Day Trip Adventure",d:"We pack snacks and go somewhere new for the day, a beach, a hill or a small town.",l:"PASTE_LINK_5"},
-{t:"Stargazing and Wishes",d:"We lie under the stars with warm blankets and hot chocolate, and tell each other our biggest dreams.",l:"PASTE_LINK_6"},
-{t:"Surprise Mystery Day",d:"One of us plans the entire day in secret. The other only gets clues, with no questions allowed.",l:"PASTE_LINK_7"},
-{t:"Cook-Off Challenge",d:"We each make a dish for the other, then rate each other’s cooking. The winner picks the next date.",l:"PASTE_LINK_8"},
-{t:"Slow Dance in the Living Room",d:"We put on our song, dim the lights and dance slowly, holding each other close.",l:"PASTE_LINK_9"},
-{t:"Spa Night at Home",d:"Face masks, massages, soft music and candles. A full night of relaxing together.",l:"PASTE_LINK_10"},
-{t:"Letters to Our Future",d:"We each write a letter about our hopes for the years ahead, seal it, and promise to open it together on a future anniversary.",l:"PASTE_LINK_11"},
-{t:"Your Wish Day",d:"Any day we both feel like it, you choose the plan and I follow along. No questions asked, and no limits.",l:"PASTE_LINK_12"}
+{t:"Breakfast in Bed",d:"Wake up to a surprise breakfast, made just for you. No phones, no rushing."},
+{t:"Candlelight Dinner at Home",d:"Soft music, candles and your favorite meal. Just the two of us, with nowhere else to be."},
+{t:"Love Notes Hunt",d:"I hide little love notes around the house for you to find, and the last one leads to a surprise."},
+{t:"Sunset Picnic for Three",d:"A blanket, fruit, sweets and a quiet spot to watch the sun go down, with the three of us together."},
+{t:"Day Trip Adventure",d:"We pack snacks and go somewhere new for the day, a beach, a hill or a small town."},
+{t:"Stargazing and Wishes",d:"We lie under the stars with warm blankets and hot chocolate, and tell each other our biggest dreams."},
+{t:"Surprise Mystery Day",d:"One of us plans the entire day in secret. The other only gets clues, with no questions allowed."},
+{t:"Cook-Off Challenge",d:"We each make a dish for the other, then rate each other’s cooking. The winner picks the next date."},
+{t:"Slow Dance in the Living Room",d:"We put on our song, dim the lights and dance slowly, holding each other close."},
+{t:"Spa Night at Home",d:"Face masks, massages, soft music and candles. A full night of relaxing together."},
+{t:"Letters to Our Future",d:"We each write a letter about our hopes for the years ahead, seal it, and promise to open it together on a future anniversary."},
+{t:"Your Wish Day",d:"Any day we both feel like it, you choose the plan and I follow along. No questions asked, and no limits."}
 ];
-const KEY="anniv-opened";
+
+// 🎵 YOUR YOUTUBE LINKS (randomly given to the cards)
+const SONGS=[
+"https://youtu.be/Y7ZHkpRcshQ?si=yKa1GyB3Q62AjYUF",
+"https://youtu.be/nPrhOHl0IMk?si=54vhTZN_XBmYuBqz",
+"https://youtu.be/qoq8B8ThgEM?si=DXLWoYd2erpZX4yv",
+"https://youtu.be/eG5Zx7qq2C4?si=fDkjgeIJM_HC9g7e",
+"https://youtu.be/xiCsLRdq1lU?si=3WJ-zM5bkvF2_k03",
+"https://youtu.be/Mixda-_1qLk?si=cBfkqPHYQ11TZ7I1",
+"https://youtu.be/LoPf32nKYb8?si=Tnpkeqpki0yPL5zh",
+"https://youtu.be/UCnlulzC6M4?si=rAoHDYsM1TQQVlF1",
+"https://youtu.be/gYZjp0RNewc?si=mTXaLlo4b-pisNQX",
+"https://youtu.be/Cge0i-BeqKQ?si=EodnJKUMh9MVweJy",
+"https://youtu.be/_6i4jndlkO0?si=A1bo935oED8qIU1A",
+"https://youtu.be/q_hevkY0hhY?si=pBYZP8M9TpFl-02Y",
+"https://youtu.be/fv-4okrCbLA?si=vzIJEBVty_paH9hW",
+"https://youtu.be/ztGJhlEFFjs?si=atvgI2xBkiGcC2tE"
+];
+
+const KEY="anniv-opened",SKEY="anniv-songs";
 let opened=[];
 try{opened=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(opened))}catch(e){}}
+
+// Give each card a random song, and remember it so it stays the same
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let assigned=null;
+try{
+  const s=JSON.parse(localStorage.getItem(SKEY)||"null");
+  if(Array.isArray(s)&&s.length===PLANS.length&&s.every(x=>SONGS.includes(x)))assigned=s;
+}catch(e){}
+if(!assigned){
+  assigned=shuffle(SONGS).slice(0,PLANS.length);
+  try{localStorage.setItem(SKEY,JSON.stringify(assigned))}catch(e){}
+}
+
 const grid=document.getElementById("grid"),done=document.getElementById("done");
 const ov=document.getElementById("overlay");
+const songBtn=document.getElementById("oSong");
 let current=null;
 function render(){
   grid.innerHTML="";
@@ -91,9 +124,7 @@ function openCard(i,el){
   const p=PLANS[i];
   document.getElementById("oTitle").textContent=p.t;
   document.getElementById("oText").textContent=p.d;
-  const wrap=document.getElementById("oSongWrap"),a=document.getElementById("oSong");
-  if(p.l&&p.l.indexOf("http")===0){a.href=p.l;wrap.style.display="block"}
-  else{wrap.style.display="none"}
+  songBtn.href=assigned[i];
   ov.classList.add("show");
 }
 function closeCard(){
