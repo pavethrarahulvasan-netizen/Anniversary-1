@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>12 Months of Us</title>
+<title>Love you Azhagi</title>
 <style>
 :root{--bg:#fff5f6;--card:#e11d48;--card2:#fb7185;--ink:#4a1020;--paper:#fffdf8;--muted:#9f5a68;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -13,8 +13,9 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif;min-height:100vh;text-align:center}
 header{padding:32px 16px 8px}
-h1{margin:0;font-size:clamp(1.8rem,6vw,2.8rem)}
-header p{margin:8px 0 0;color:var(--muted)}
+h1{margin:0;font-size:clamp(1.9rem,7vw,3rem)}
+.sub{margin:10px 0 0;font-size:1.2rem;color:var(--card);font-style:italic}
+.hint{margin:8px 0 0;font-size:.9rem;color:var(--muted)}
 .grid{max-width:760px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
 .card{aspect-ratio:3/4;border:0;border-radius:16px;cursor:pointer;color:#fff;font:inherit;
 background:linear-gradient(145deg,var(--card),var(--card2));box-shadow:0 6px 16px rgba(0,0,0,.2);
@@ -28,8 +29,8 @@ display:flex;align-items:center;justify-content:center;transition:transform .2s,
 @keyframes pop{from{transform:scale(.3) rotateY(90deg);opacity:0}to{transform:none;opacity:1}}
 .open h2{margin:0 0 10px;font-size:1.6rem}
 .open p{margin:0 0 20px;line-height:1.5}
-.btn{display:inline-block;background:var(--card);color:#fff;border:0;border-radius:999px;padding:10px 26px;font:inherit;cursor:pointer;text-decoration:none}
-.song{margin:0 0 16px}
+.btn{display:block;width:100%;background:var(--card);color:#fff;border:0;border-radius:999px;padding:13px 20px;font:inherit;font-size:1rem;cursor:pointer;margin:0 0 12px}
+.btn.alt{background:transparent;color:var(--card);border:2px solid var(--card)}
 .done{display:none;margin:40px 16px;font-size:1.3rem}
 footer{padding:24px;font-size:.8rem;color:var(--muted)}
 footer button{background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit}
@@ -37,18 +38,19 @@ footer button{background:none;border:0;color:inherit;text-decoration:underline;c
 </head>
 <body>
 <header>
-<h1>12 Months of Us 💍</h1>
-<p>Tap a card to open your surprise. Once opened, it’s gone.</p>
+<h1>Love you Azhagi ❤️</h1>
+<div class="sub">Let’s have an amazing year ahead</div>
+<div class="hint">Tap a card to open your surprise</div>
 </header>
 <div class="grid" id="grid"></div>
-<div class="done" id="done">All 12 surprises opened. Happy Anniversary! ❤️</div>
+<div class="done" id="done">All 12 surprises opened. Love you Azhagi! ❤️</div>
 <footer><button id="reset">reset cards</button></footer>
 
 <div class="overlay" id="overlay"><div class="open">
 <h2 id="oTitle"></h2>
 <p id="oText"></p>
-<div class="song"><a class="btn" id="oSong" href="#" target="_blank" rel="noopener noreferrer">🎵 Song of the Month</a></div>
-<button class="btn" id="oClose">Close</button>
+<button class="btn" id="oSong" type="button">🎵 Song of the Month</button>
+<button class="btn alt" id="oClose" type="button">Close</button>
 </div></div>
 
 <script>
@@ -86,17 +88,16 @@ const SONGS=[
 "https://youtu.be/ztGJhlEFFjs?si=atvgI2xBkiGcC2tE"
 ];
 
-const KEY="anniv-opened",SKEY="anniv-songs";
+const KEY="anniv-opened-v3",SKEY="anniv-songs-v3";
 let opened=[];
 try{opened=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(opened))}catch(e){}}
 
-// Give each card a random song, and remember it so it stays the same
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 let assigned=null;
 try{
   const s=JSON.parse(localStorage.getItem(SKEY)||"null");
-  if(Array.isArray(s)&&s.length===PLANS.length&&s.every(x=>SONGS.includes(x)))assigned=s;
+  if(Array.isArray(s)&&s.length===PLANS.length&&s.every(x=>SONGS.indexOf(x)>-1))assigned=s;
 }catch(e){}
 if(!assigned){
   assigned=shuffle(SONGS).slice(0,PLANS.length);
@@ -106,13 +107,14 @@ if(!assigned){
 const grid=document.getElementById("grid"),done=document.getElementById("done");
 const ov=document.getElementById("overlay");
 const songBtn=document.getElementById("oSong");
-let current=null;
+let current=null,currentLink="";
+
 function render(){
   grid.innerHTML="";
   PLANS.forEach((p,i)=>{
-    if(opened.includes(i))return;
+    if(opened.indexOf(i)>-1)return;
     const b=document.createElement("button");
-    b.className="card";b.setAttribute("aria-label","Surprise card");
+    b.className="card";b.type="button";b.setAttribute("aria-label","Surprise card");
     b.innerHTML='<span class="heart">💌</span>';
     b.onclick=()=>openCard(i,b);
     grid.appendChild(b);
@@ -122,16 +124,21 @@ function render(){
 function openCard(i,el){
   current={i,el};
   const p=PLANS[i];
+  currentLink=assigned[i];
   document.getElementById("oTitle").textContent=p.t;
   document.getElementById("oText").textContent=p.d;
-  songBtn.href=assigned[i];
   ov.classList.add("show");
 }
+songBtn.onclick=function(){
+  if(!currentLink)return;
+  const w=window.open(currentLink,"_blank");
+  if(!w){window.location.href=currentLink}
+};
 function closeCard(){
   ov.classList.remove("show");
   if(!current)return;
   const {i,el}=current;current=null;
-  if(!opened.includes(i)){opened.push(i);save()}
+  if(opened.indexOf(i)<0){opened.push(i);save()}
   el.classList.add("vanish");
   setTimeout(render,600);
 }
